@@ -103,12 +103,14 @@ class EventStore {
 
             let { type, id, /**Array.<DomainEvent>*/uncommittedEvents } = aggregate,
                 version = aggregate.version - uncommittedEvents.length,
+                next = version,
                 statement = this.client.prepare(INSERT_SQL);
 
+            // @todo extract method
             let values = uncommittedEvents
                 .map(/**DomainEvent*/event => {
-                    version++;
-                    return `('${id}', '${type}', '${event.type}', '${EventStore.UTC()}', ${version}, '${JSON.stringify(event)}')`;
+                    next++;
+                    return `('${id}', '${type}', '${event.type}', '${EventStore.UTC()}', ${next}, '${JSON.stringify(event)}')`;
                 })
                 .join(',');
             let query = `
@@ -123,8 +125,11 @@ class EventStore {
                     if (err) {
                         return reject(err);
                     }
-                    // @TODO dispatch the events on the bus
                     aggregate.uncommittedEvents = [];
+                    this.eventsForStream(id, version + 1, uncommittedEvents.length)
+                        .then(events => events.forEach(event => this.eventbus.dispatch(event)))
+                        .then(() => resolve())
+                        .catch(e => reject(e));
                     resolve();
                 });
 
