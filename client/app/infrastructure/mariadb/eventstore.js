@@ -96,7 +96,7 @@ class EventStore {
         `);
         let version = parseInt(rows[0]);
         if (version >= nextVersion) {
-            return reject(new Error(`Version conflict: ${aggregate.type}:${aggregate.id} ( ${version} >= ${nextVersion})`));
+            throw new Error(`Version conflict: ${aggregate.type}:${aggregate.id} ( ${version} >= ${nextVersion})`);
         }
     }
 
