@@ -1,0 +1,39 @@
+version: '2'
+services:
+    ngrok:
+      image: wernight/ngrok
+      links:
+        - web
+      ports:
+        - 4040:4040
+      command:
+         - ngrok
+         - http
+         - web:80
+    web:
+      image: nginx
+      ports:
+        - 9080:80
+    db:
+      image: mariadb
+      restart: always
+      environment:
+        - MYSQL_ROOT_PASSWORD=pazzword
+        - MYSQL_DATABASE=events
+    client:
+      build: ./client
+      restart: always
+      depends_on:
+        - db
+        - broker
+      environment:
+        - RABBITMQ_HOST=broker
+        - DB_HOST=db
+        - DB_USER=root
+        - DB_PASSWORD=pazzword
+        - DB_NAME=events
+      volumes:
+        - ./client/app:/usr/local/client
+        - /usr/local/client/node_modules
+    broker:
+      image: rabbitmq:alpine

@@ -1,0 +1,12 @@
+- http://codeblog.dotsandbrackets.com/using-zeromq-with-docker/
+- use .env files
+- add consul
+- add consul template
+- add registrator
+- add varnish
+- add api to work with the webhooks from contentful to create products, catch data to be able to replay
+- http://zguide.zeromq.org/js:taskwork
+- http://www.codedependant.net/2014/09/13/pub-sub-with-zeromq/
+- http://www.squaremobius.net/amqp.node/
+- https://github.com/postwait/node-amqp#connection-options-and-url
+- http://www.webdevelopersdiary.com/blog/good-to-know-how-to-properly-store-date-and-time-values-in-mysql
