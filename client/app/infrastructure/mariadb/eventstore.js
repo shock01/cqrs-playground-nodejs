@@ -4,7 +4,6 @@
  */
 const SELECT_SQL = "SELECT * FROM events WHERE aggregateId=? AND aggregateType=? ORDER BY version";
 const INSERT_SQL = "INSERT INTO events (aggregateId, aggregateType, eventType, eventDate, version, data) VALUES (:aggregateId, :aggregateType, :eventType, :eventDate, :version, :data)";
-const SELECT_MAX_SQL = "SELECT MAX(version) FROM events WHERE aggregateId=? AND aggregateType=?";
 const SELECT_EVENTS_SQL = "SELECT * FROM events ORDER BY sequence ASC LIMIT ? OFFSET ?";
 
 const fields = `
@@ -81,58 +80,60 @@ class EventStore {
      * returns the last sequence if of the store
      */
     async sequenceId() /**Promise.<Number>*/ {
-        return new Promise((resolve, reject) => {
-            this.client.query(`
-            SELECT 
-                max(sequence) 
-            FROM events`,
-                null,
-                { useArray: true },
-                (err, rows) => {
-                    if (err) {
-                        return reject(err);
-                    }
-                    resolve(rows[0]);
-                });
-        });
+        let rows = await this.query(`
+        SELECT 
+            MAX(sequence) 
+        FROM events`);
+        return parseInt(rows[0]);
+    }
+
+    async verifyVersion(/**Aggregate*/aggregate, /**Number*/nextVersion) {
+        let rows = await this.query(`
+        SELECT 
+            MAX(version) 
+        FROM events 
+        WHERE aggregateId='${aggregate.id}' AND aggregateType='${aggregate.type}';
+        `);
+        let version = parseInt(rows[0]);
+        if (version >= nextVersion) {
+            return reject(new Error(`Version conflict: ${aggregate.type}:${aggregate.id} ( ${version} >= ${nextVersion})`));
+        }
     }
 
     async save(/**Aggregate*/aggregate) /**Promise.<void>*/ {
-        // @TODO make sure we use the verifyVersion logic
+        let { type, id, /**Array.<DomainEvent>*/uncommittedEvents } = aggregate,
+            version = aggregate.version - uncommittedEvents.length,
+            next = version;
+
+        this.verifyVersion(aggregate, version + 1);
+        // @todo extract method
+        let values = uncommittedEvents
+            .map(/**DomainEvent*/event => {
+                next++;
+                return `('${id}', '${type}', '${event.type}', '${EventStore.UTC()}', ${next}, '${JSON.stringify(event)}')`;
+            })
+            .join(',');
+        let query = `
+            START TRANSACTION;
+            INSERT INTO events (aggregateId, aggregateType, eventType, eventDate, version, data) 
+            VALUES 
+                ${values};
+            COMMIT;    
+            `;
+        aggregate.uncommittedEvents = [];
+        let rows = await this.query(query)
+        let events = await this.eventsForStream(id, version + 1, uncommittedEvents.length);
+        events.forEach(event => this.eventbus.dispatch(event));
+    }
+
+    query(/**String*/sql) {
         return new Promise((resolve, reject) => {
-
-            let { type, id, /**Array.<DomainEvent>*/uncommittedEvents } = aggregate,
-                version = aggregate.version - uncommittedEvents.length,
-                next = version,
-                statement = this.client.prepare(INSERT_SQL);
-
-            // @todo extract method
-            let values = uncommittedEvents
-                .map(/**DomainEvent*/event => {
-                    next++;
-                    return `('${id}', '${type}', '${event.type}', '${EventStore.UTC()}', ${next}, '${JSON.stringify(event)}')`;
-                })
-                .join(',');
-            let query = `
-                START TRANSACTION;
-                INSERT INTO events (aggregateId, aggregateType, eventType, eventDate, version, data) 
-                VALUES 
-                    ${values};
-                COMMIT;    
-                `;
-            this.client.query(query,
-                (err, b) => {
-                    if (err) {
-                        return reject(err);
-                    }
-                    aggregate.uncommittedEvents = [];
-                    this.eventsForStream(id, version + 1, uncommittedEvents.length)
-                        .then(events => events.forEach(event => this.eventbus.dispatch(event)))
-                        .then(() => resolve())
-                        .catch(e => reject(e));
-                    resolve();
-                });
-
+            this.client.query(sql, null, { useArray: true }, (err, rows) => {
+                if (err) {
+                    return reject(err);
+                }
+                resolve(rows);
+            })
         });
     }
 

@@ -8,6 +8,7 @@ class EventBus extends EventEmitter {
 
     constructor(channel, logger) {
         super();
+        console.log('create me')
         this.channel = channel;
         this.logger = logger;
     }
@@ -39,14 +40,14 @@ class EventBus extends EventEmitter {
         if (!instance) {
             let queue = require('../infrastructure/rabbitmq/queue'),
                 channel = await require('../infrastructure/rabbitmq/channel')(),
-                commandQueue = await queue(QUEUE, channel),
-                instance = new EventBus(channel, logger);
+                commandQueue = await queue(QUEUE, channel);
+
+            instance = new EventBus(channel, logger);
             instance.init();
             global[SINGLETON_KEY] = instance;
         }
         return instance;
     }
-
 }
 
 module.exports = EventBus;

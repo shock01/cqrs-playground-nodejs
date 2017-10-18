@@ -10,3 +10,4 @@
 - http://www.squaremobius.net/amqp.node/
 - https://github.com/postwait/node-amqp#connection-options-and-url
 - http://www.webdevelopersdiary.com/blog/good-to-know-how-to-properly-store-date-and-time-values-in-mysql
+- http://blog.grossman.io/how-to-write-async-await-without-try-catch-blocks-in-javascript/
