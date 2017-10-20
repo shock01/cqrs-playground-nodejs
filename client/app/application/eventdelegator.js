@@ -1,10 +1,14 @@
 'use strict';
 
 let delegator = {
-    when(/**Object*/instance, /**DomainEvent*/event) {
+    when(/**Object*/instance, /**DomainEvent*/event, ...args) {
         let handler = instance[`on${event.type.toLowerCase()}`];
         if (typeof handler === 'function') {
-            handler.call(instance, event);
+            if(Array.isArray(args)) {
+                handler.apply(instance, [event].concat(args));
+            } else {
+                handler.call(instance, event);
+            }
         } else {
             // do some logging here
         }

@@ -1,8 +1,9 @@
 const Product = require('./domain/aggregates/product')
 const id = require('./domain/id');
+const logger = require('./application/logger');
 let a = async () => {
 
-    let eventstore = await require('./infrastructure/mariadb/eventstore').factory();
+    let eventstore = await require('./infrastructure/mariadb/eventstore').factory(logger);
 
     let aggregate = new Product().create(id());
 

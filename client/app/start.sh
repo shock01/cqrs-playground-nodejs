@@ -9,11 +9,11 @@ echo "connected";
 
 echo "\n***** starting client *****"
 echo -n "running db migration..."
-mysql --user=$DB_USER \
+
+cat infrastructure/mariadb/migrations/*.sql | mysql --user=$DB_USER \
       --password=$DB_PASSWORD \
       --host=$DB_HOST $DB_NAME \
-      --database=$DB_NAME \
-      < infrastructure/mariadb/migrations/V1_0__create_events_table.sql
+      --database=$DB_NAME
 
 echo "done!"
 echo "starting application"

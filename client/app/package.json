@@ -9,9 +9,11 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "restify": "6.0.1",
     "amqplib": "0.5.1",
+    "level": "2.0.0",
+    "level-sublevel": "6.6.1",
     "mariasql": "0.2.6",
+    "restify": "6.0.1",
     "uuid": "3.1.0"
   },
   "devDependencies": {

@@ -9,6 +9,5 @@ CREATE TABLE IF NOT EXISTS events (
     PRIMARY KEY (sequence),
     UNIQUE KEY (aggregateId, aggregateType, version),
     INDEX (aggregateId)
-) ENGINE=XtraDB AUTO_INCREMENT=0 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=0 DEFAULT CHARSET=utf8;
 
-SHOW TABLES;

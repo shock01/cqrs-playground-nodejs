@@ -48,7 +48,7 @@ class CommandBus extends EventEmitter {
     static async factory(logger)/**CommandBus*/ {
         let queue = require('../infrastructure/rabbitmq/queue');
         let channel = await require('../infrastructure/rabbitmq/channel')();
-        let commandQueue = await queue(QUEUE, channel);
+        await queue(QUEUE, channel);
         let instance = new CommandBus(channel, logger);
         instance.init();
         return instance;

@@ -1,10 +1,5 @@
 'use strict';
-/**
- * queries
- */
-const SELECT_SQL = "SELECT * FROM events WHERE aggregateId=? AND aggregateType=? ORDER BY version";
-const INSERT_SQL = "INSERT INTO events (aggregateId, aggregateType, eventType, eventDate, version, data) VALUES (:aggregateId, :aggregateType, :eventType, :eventDate, :version, :data)";
-const SELECT_EVENTS_SQL = "SELECT * FROM events ORDER BY sequence ASC LIMIT ? OFFSET ?";
+const Event = require('../../domain/event');
 
 const fields = `
 aggregateId,
@@ -124,6 +119,13 @@ class EventStore {
         let rows = await this.query(query)
         let events = await this.eventsForStream(id, version + 1, uncommittedEvents.length);
         events.forEach(event => this.eventbus.dispatch(event));
+        // dispatch an update event containing the last sequence id
+        this.eventbus.dispatch({
+            eventType: 'update',
+            data: Event.create({
+                sequenceId: next
+            })
+        });
     }
 
     query(/**String*/sql) {
@@ -152,8 +154,8 @@ class EventStore {
         return instance;
     }
 
-    static async factory()/**EventStore*/ {
-        let eventbus = await require('../../application/eventbus').factory();
+    static async factory(/**Logger*/logger)/**EventStore*/ {
+        let eventbus = await require('../../application/eventbus').factory(logger);
         let instance = new EventStore(require('./client'), eventbus);
         return instance;
     }

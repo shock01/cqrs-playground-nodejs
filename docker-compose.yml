@@ -1,15 +1,15 @@
 version: '2'
 services:
-    ngrok:
-      image: wernight/ngrok
-      links:
-        - web
-      ports:
-        - 4040:4040
-      command:
-         - ngrok
-         - http
-         - web:80
+    # ngrok:
+    #   image: wernight/ngrok
+    #   links:
+    #     - web
+    #   ports:
+    #     - 4040:4040
+    #   command:
+    #      - ngrok
+    #      - http
+    #      - web:80
     web:
       image: nginx
       ports:
@@ -19,7 +19,7 @@ services:
       restart: always
       environment:
         - MYSQL_ROOT_PASSWORD=pazzword
-        - MYSQL_DATABASE=events
+        - MYSQL_DATABASE=dev
     client:
       build: ./client
       restart: always
@@ -31,7 +31,7 @@ services:
         - DB_HOST=db
         - DB_USER=root
         - DB_PASSWORD=pazzword
-        - DB_NAME=events
+        - DB_NAME=dev
       volumes:
         - ./client/app:/usr/local/client
         - /usr/local/client/node_modules

@@ -8,7 +8,6 @@ class EventBus extends EventEmitter {
 
     constructor(channel, logger) {
         super();
-        console.log('create me')
         this.channel = channel;
         this.logger = logger;
     }
@@ -17,6 +16,7 @@ class EventBus extends EventEmitter {
             if (msg === null) {
                 return;
             }
+            this.logger.info(`[${LOGGER}] received : ${msg.content}`);
             try {
                 /**
                  * @type {EventSource}
@@ -26,7 +26,6 @@ class EventBus extends EventEmitter {
             } catch (e) {
                 this.logger.warn(`[${LOGGER}] cannot parse msg : ${e}`);
             }
-            this.logger.info(`[${LOGGER}] received : ${msg.content}`);
         }, { noAck: false });
     }
 
@@ -39,8 +38,9 @@ class EventBus extends EventEmitter {
         let instance = global[SINGLETON_KEY];
         if (!instance) {
             let queue = require('../infrastructure/rabbitmq/queue'),
-                channel = await require('../infrastructure/rabbitmq/channel')(),
-                commandQueue = await queue(QUEUE, channel);
+                channel = await require('../infrastructure/rabbitmq/channel')();
+
+            await queue(QUEUE, channel);
 
             instance = new EventBus(channel, logger);
             instance.init();

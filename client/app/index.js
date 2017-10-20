@@ -10,17 +10,20 @@ let app = async () => {
      * cqrs
      */
     const logger = require('./application/logger');
+    const eventstore = await (require('./infrastructure/mariadb/eventstore')).factory(logger);
     const eventbus = await (require('./application/eventbus')).factory(logger);
     const commandbus = await (require('./application/commandbus')).factory(logger);
-    const eventstore = await (require('./infrastructure/mariadb/eventstore')).factory();
+    const projections = require('./application/projections');
     const commands = require('./domain/commands');
+
     /**
-     * setup commands
+     * setup commands 
      */
-    commands(commandbus);
+    commands(commandbus, logger);
     /**
-     * setup views
+     * setup projections
      */
+    projections(eventbus, eventstore, logger);
     /**
      * server 
      */

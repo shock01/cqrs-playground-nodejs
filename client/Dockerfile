@@ -18,6 +18,8 @@ RUN npm install --silent -g supervisor
 
 RUN mkdir -p /usr/local/$SERVICE_NAME && cp -a /tmp/node_modules /usr/local/$SERVICE_NAME
 
+RUN mkdir -p /var/leveldb/data
+
 # From here we load our application's code in, therefore the previous docker
 # "layer" thats been cached will be used if possible
 WORKDIR /usr/local/$SERVICE_NAME
