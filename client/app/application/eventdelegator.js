@@ -2,6 +2,7 @@
 
 let delegator = {
     when(/**Object*/instance, /**DomainEvent*/event, ...args) {
+        console.log(event);
         let handler = instance[`on${event.type.toLowerCase()}`];
         if (typeof handler === 'function') {
             if(Array.isArray(args)) {

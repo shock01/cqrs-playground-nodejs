@@ -28,3 +28,9 @@
 /**
  * @typedef {Object} Command
  */
+
+ /**
+ * @typedef {Object} SequenceInfo
+ * @property {Number} sequenceId
+ * @property {Number} time
+ */
