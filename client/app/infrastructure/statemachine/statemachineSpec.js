@@ -3,7 +3,7 @@ const { spy, stub, createStubInstance } = require('sinon')
 
 const logger = require('../../application/logger');
 const StateMachine = require('./statemachine');
-const StateRepository = require('./staterespository');
+const StateRepository = require('./staterepository');
 
 describe('statemachine', () => {
 
