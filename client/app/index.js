@@ -15,7 +15,7 @@ let app = async () => {
     const commandbus = await (require('./application/commandbus')).factory(logger);
     const projections = require('./application/projections');
     const commands = require('./domain/commands');
-
+    const processes = require('./application/processes');
     /**
      * setup commands 
      */
@@ -24,6 +24,10 @@ let app = async () => {
      * setup projections
      */
     projections(eventbus, eventstore, logger);
+    /**
+     * setup processes
+     */
+    processes(eventbus, eventstore, logger);
     /**
      * server 
      */

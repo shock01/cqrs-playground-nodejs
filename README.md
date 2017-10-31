@@ -25,3 +25,5 @@ Distributed events can be used by external systems, like process managers / saga
 - https://groups.google.com/forum/#!topic/dddcqrs/S_c_eqQElh8/discussion
 - https://blog.oasisdigital.com/2015/event-sourced-cqrs-read-model/
 - https://blog.yld.io/2016/10/24/node-js-databases-an-embedded-database-using-leveldb/
+
+- Automatonymous for process
