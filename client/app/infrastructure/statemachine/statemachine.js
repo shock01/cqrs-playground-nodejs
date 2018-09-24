@@ -3,6 +3,7 @@
 const INITIAL = 'initial';
 
 /**
+ * https://lostechies.com/chrispatterson/2009/01/17/state-machine-for-managing-sagas/
  * @callback StateMachine~keyGenerator
  * @param {EventSource} eventSource
  * @returns {string}
